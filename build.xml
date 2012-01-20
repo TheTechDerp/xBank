@@ -22,7 +22,7 @@
         </javac>
     </target>
     <target name="deploy" depends="compile,init">
-          <zip destfile="../out/${jarname}.jar">
+        <zip destfile="./out/${jarname}.jar">
             <fileset dir="${outputDir}"/>
             <fileset dir="${sourceDir}" includes="plugin.yml"/>
 
