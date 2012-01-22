@@ -2,7 +2,7 @@
     <target name="init">
         <property name="sourceDir" value="src" />
         <property name="outputDir" value="bin" />
-        <property name="libdir" value="../../libs/" />
+        <property name="libdir" value="../libs/" />
         <property name="jarname" value="XBank" />
     </target>
     <target name="clean" depends="init">
