@@ -1,6 +1,8 @@
 package me.tehrainbowguy.XBank;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -81,7 +83,36 @@ public class XBank extends JavaPlugin {
         	config.set("xp.user." + p.getName(), 0);
         	saveConfig();
         	}
+		if(args[0].equalsIgnoreCase("export")){
+			if(!permission.has(p, "XBank.export")){
+				p.sendMessage("You do not have permission to do this.");
+				return true;
+			}
+    	    ConfigurationSection groupSection = config.getConfigurationSection("xp.user"); //saves the section we are in for re-use
+    	    Set<String> list = groupSection.getKeys(false); //grabs all keys in the section
+    	    Map<String, Integer> map = new LinkedHashMap<String, Integer>(); //this is the map we will store the keys and values in
+         
 
+    	    for (String key : list) { //iterate over all keys
+    	    map.put(key, groupSection.getInt(key)); //save the values of the keys in our map, assuming that all values are integers
+    	    }    	
+    	    Map<String, Integer> sorted = Util.sortByValues(map);
+    	    int i = 1;    	    
+    	       try {
+    	            FileWriter writer = new FileWriter("plugins/XBank/export.log", true);
+    	            
+    	            for( Entry<String, Integer> key : sorted.entrySet()){
+      	    	    	writer.write("\n" + i + ". " + key.getKey() + " - " + key.getValue());
+    	    	    	i++;
+    	    	 
+    	    	    }
+    	            
+    	            writer.close();
+    	        } catch (IOException e) {
+    	            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    	        }
+			
+		}
     	if(args[0].equalsIgnoreCase("top")){
     	    ConfigurationSection groupSection = config.getConfigurationSection("xp.user"); //saves the section we are in for re-use
     	    Set<String> list = groupSection.getKeys(false); //grabs all keys in the section
