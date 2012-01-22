@@ -37,6 +37,9 @@ public class XBank extends JavaPlugin {
     	try{
     	File XBank = new File("plugins" + File.separator + "XBank" + File.separator + "config.yml");
     	XBank.mkdir();
+		if(!config.contains("xp.config.minimumdeposit")){
+        	config.set("xp.config.minimumdeposit", 1);
+		}
     	saveConfig();
     	}catch(Exception e){
 		System.out.println("[XBank] There was a error, please send this stacktrace to the XBank dev team on bukkitdev via a ticket.");
@@ -156,11 +159,16 @@ public class XBank extends JavaPlugin {
     			return true;
     			
     		}
+    		
     		String arg1 = args[1];
     		int currxp = p.getLevel();
     		//p.sendMessage("" + currxp);
     		int currbal = config.getInt("xp.user." + p.getName().toString());
     		int wanttodep = Integer.parseInt(arg1);
+    		if(config.getInt("xp.config.minimumdeposit") > wanttodep){
+    			p.sendMessage("You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"));
+    			return true;
+    		}
     		if(currxp >=  wanttodep ){
             	config.set("xp.user." + p.getName(), currbal + wanttodep);
             	p.setLevel(currxp - wanttodep);
