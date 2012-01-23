@@ -3,6 +3,7 @@ package me.tehrainbowguy.XBank;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,8 +31,9 @@ public class XBank extends JavaPlugin {
         System.out.println(this + " is now disabled!");
     }
 
-
-	FileConfiguration config;
+//DONE: Finish MySql statements.
+//TODO: Replace System.out.println etc with logger
+	public static FileConfiguration config;
 
 	void setupConfig(){		
     	config = getConfig();
@@ -39,14 +41,28 @@ public class XBank extends JavaPlugin {
     	try{
     	File XBank = new File("plugins" + File.separator + "XBank" + File.separator + "config.yml");
     	XBank.mkdir();
-		if(!config.contains("xp.config.minimumdeposit")){
-        	config.set("xp.config.minimumdeposit", 1);
-		}
     	saveConfig();
     	}catch(Exception e){
 		System.out.println("[XBank] There was a error, please send this stacktrace to the XBank dev team on bukkitdev via a ticket.");
     		e.printStackTrace();
     	}
+    	if(!config.contains("xp.config.minimumdeposit")){
+        	config.set("xp.config.minimumdeposit", 1);
+		}
+		if(!config.contains("xp.config.usedatabase")){
+        	config.set("xp.config.usedatabase", false);
+		}
+		if(!config.contains("xp.config.database")){
+        	config.set("xp.config.database", "jdbc:mysql://localhost:3306/minecraft");
+		}
+		if(!config.contains("xp.config.user")){
+        	config.set("xp.config.user", "root");
+		}
+		if(!config.contains("xp.config.password")){
+        	config.set("xp.config.password", "YourAwesomePassword");
+		}
+    	saveConfig();
+
 	}
 
     public static Permission permission = null;
@@ -61,8 +77,15 @@ public class XBank extends JavaPlugin {
 
     public void onEnable() {
     	setupPermissions();
-
     	setupConfig();
+    	if(config.getBoolean("xp.config.usedatabase")){
+    		try {
+				MySql.createTables();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
         System.out.println(this + " is now enabled!");
     }
 
@@ -78,16 +101,37 @@ public class XBank extends JavaPlugin {
 			
 		}
 			Player p = 	(Player) sender;
-
+		if(!permission.has(p, "XBank.use")){
+			p.sendMessage("You do not have permission to use XBank.");
+			return true;
+		}
+		if(config.getBoolean("xp.config.usedatabase")){
+			try {
+				MySql.createUser(p);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	//		System.out.println("[XBANK] NOT READY YET REVERTING TO FILE.");
+	
+		
+		}
+		else{
 			if(!config.contains("xp.user." + p.getName())){
-        	config.set("xp.user." + p.getName(), 0);
-        	saveConfig();
-        	}
+	        	config.set("xp.user." + p.getName(), 0);
+	        	saveConfig();
+	        	}
+		}
 		if(args[0].equalsIgnoreCase("export")){
 			if(!permission.has(p, "XBank.export")){
 				p.sendMessage("You do not have permission to do this.");
 				return true;
 			}
+			if(config.getBoolean("xp.config.usedatabase")){
+				p.sendMessage("Not ready for databases yet. Sorry!");
+				return true;
+			}
+			
     	    ConfigurationSection groupSection = config.getConfigurationSection("xp.user"); //saves the section we are in for re-use
     	    Set<String> list = groupSection.getKeys(false); //grabs all keys in the section
     	    Map<String, Integer> map = new LinkedHashMap<String, Integer>(); //this is the map we will store the keys and values in
@@ -113,7 +157,14 @@ public class XBank extends JavaPlugin {
     	        }
 			
 		}
+		
+		
+		
     	if(args[0].equalsIgnoreCase("top")){
+    		if(config.getBoolean("xp.config.usedatabase")){
+				p.sendMessage("Not ready for databases yet. Sorry!");
+				return true;
+			}
     	    ConfigurationSection groupSection = config.getConfigurationSection("xp.user"); //saves the section we are in for re-use
     	    Set<String> list = groupSection.getKeys(false); //grabs all keys in the section
     	    Map<String, Integer> map = new LinkedHashMap<String, Integer>(); //this is the map we will store the keys and values in
@@ -137,9 +188,19 @@ public class XBank extends JavaPlugin {
     	if(permission.has(p, "xbank.reset")){
     		if(args.length == 2){
         		OfflinePlayer target = getServer().getOfflinePlayer(args[1]);
+        		if(config.getBoolean("xp.config.usedatabase")){
+    				try {
+						MySql.setBalanceOffline(target, 0);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    				
+    			}else {
         			config.set("xp.user." + target.getName(), 0);
+    			}
         			sender.sendMessage("The player " + target.getName() + "'s account has been reset!");
-        			System.out.println("[XBank] " + sender.getName() + " has just reset " + target.getName() + "'s account!");
+        			System.out.println("[XBank] " + p.getName() + " has just reset " + target.getName() + "'s account!");
         		
     			return true;
     		}else {
@@ -159,13 +220,34 @@ public class XBank extends JavaPlugin {
     		}
     		int currxp = p.getLevel();
     		//p.sendMessage("" + currxp);
-    		int oldbal = config.getInt("xp.user." + p.getName().toString());
-
+    		int oldbal = 0;
+    		if(config.getBoolean("xp.config.usedatabase")){
+    			try {
+					oldbal = MySql.getBalance(p);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    		}else{
+    		oldbal = config.getInt("xp.user." + p.getName().toString());
+    		}
     		int wanttowith = Integer.parseInt(args[1]);
     		if(oldbal >= wanttowith ){
+    			int newbal = 0;
+    			if(config.getBoolean("xp.config.usedatabase")){
+    				try {
+						MySql.setBalance(p, oldbal - wanttowith);
+
+						newbal = MySql.getBalance(p);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+    			} else{
             	config.set("xp.user." + p.getName().toString(), oldbal - wanttowith);
+            		newbal = config.getInt("xp.user." + p.getName().toString());
+    			}
             	p.setLevel(currxp + wanttowith);
-        		int newbal = config.getInt("xp.user." + p.getName().toString());
 
             	p.sendMessage("New balance: " + newbal);
         		p.sendMessage("XP: " + p.getLevel());
@@ -178,8 +260,18 @@ public class XBank extends JavaPlugin {
     	}
 			
 		}else if(args[0].equalsIgnoreCase("balance")){
-    		
-    		p.sendMessage(ChatColor.GREEN + "[XBank] Your balance is " + config.getInt("xp.user." + p.getName().toString()));
+    		int bal = 0;
+    		if(config.getBoolean("xp.config.usedatabase")){
+    			try {
+					bal = MySql.getBalance(p);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    		}else {
+    			bal = config.getInt("xp.user." + p.getName().toString());
+    		}
+    		p.sendMessage(ChatColor.GREEN + "[XBank] Your balance is " + bal );
     	//	p.sendMessage("XP: " + p.getLevel());
     		return true;
     	}
@@ -194,16 +286,38 @@ public class XBank extends JavaPlugin {
     		String arg1 = args[1];
     		int currxp = p.getLevel();
     		//p.sendMessage("" + currxp);
-    		int currbal = config.getInt("xp.user." + p.getName().toString());
+    		int currbal = 0;
+    		if(config.getBoolean("xp.config.usedatabase")){
+    			try {
+    				currbal = MySql.getBalance(p);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    		}else {
+    			currbal = config.getInt("xp.user." + p.getName().toString());
+    		}
     		int wanttodep = Integer.parseInt(arg1);
     		if(config.getInt("xp.config.minimumdeposit") > wanttodep){
     			p.sendMessage("You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"));
     			return true;
     		}
     		if(currxp >=  wanttodep ){
+    			int newbal = 0;
+        		if(config.getBoolean("xp.config.usedatabase")){
+        			try {
+    					MySql.setBalance(p, currbal + wanttodep);
+
+        			newbal = MySql.getBalance(p);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+        		} else {
             	config.set("xp.user." + p.getName(), currbal + wanttodep);
+        		newbal = config.getInt("xp.user." + p.getName().toString());
+        		}
             	p.setLevel(currxp - wanttodep);
-        		int newbal = config.getInt("xp.user." + p.getName().toString());
 
             	p.sendMessage("New balance: " + newbal);
         		p.sendMessage("XP: " + p.getLevel());
@@ -236,10 +350,18 @@ public class XBank extends JavaPlugin {
     		 }
     		 else
     		 {
+    			 
     	    int currxp = p.getLevel();
     		int targetxp = target.getLevel();
     		int wanttodep = Integer.parseInt(args[2]);
-    		Util.sendXP(currxp, wanttodep, targetxp, p, target);
+    		if(currxp >=  wanttodep ){
+    			p.setLevel(currxp - wanttodep);
+            	target.setLevel(targetxp + wanttodep );
+            	target.sendMessage(p.getDisplayName() + " sent you " + wanttodep + " levels.");
+            	p.sendMessage("You sent " + wanttodep + " Levels to " + target.getDisplayName() + ".");
+    		}else {
+    			p.sendMessage("Sorry you need more XP");	
+    		}
     		return true;	
     		 }
     		

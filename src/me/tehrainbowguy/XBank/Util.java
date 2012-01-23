@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Player;
 
 public class Util {
 
@@ -33,14 +32,4 @@ public class Util {
 		
 	}
 
-	public static void sendXP(int currxp, int wanttodep, int targetxp, Player p, Player target){
-		if(currxp >=  wanttodep ){
-			p.setLevel(currxp - wanttodep);
-        	target.setLevel(targetxp + wanttodep );
-        	target.sendMessage(p.getDisplayName() + " sent you " + wanttodep + " levels.");
-        	p.sendMessage("You sent " + wanttodep + " Levels to " + target.getDisplayName() + ".");
-		}else {
-			p.sendMessage("Sorry you need more XP");	
-		}
-	}
 }
