@@ -15,10 +15,12 @@ import org.bukkit.entity.Player;
 
 
 public class MySql {
+	
 	static FileConfiguration config = XBank.config;
 	static String url = config.getString("xp.config.database");
 	static String user = config.getString("xp.config.user");
 	static String pass = config.getString("xp.config.password");
+	
 	public static void createTables() throws SQLException{
 		Connection conn = DriverManager.getConnection(url, user, pass); //Creates the connection
 		PreparedStatement Statement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `XBank` (  `id` int(11) NOT NULL auto_increment,  `User` varchar(50) NOT NULL,  `Balance` int(11) NOT NULL,  PRIMARY KEY  (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;"); //Put your query in the quotes

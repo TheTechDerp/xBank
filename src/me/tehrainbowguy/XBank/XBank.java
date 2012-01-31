@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import net.milkbowl.vault.permission.Permission;
 
@@ -28,22 +29,22 @@ public class XBank extends JavaPlugin {
 	
     public void onDisable() {
 
-        System.out.println(this + " is now disabled!");
+        log.info(this + " is now disabled!");
     }
 
 //DONE: Finish MySql statements.
-//TODO: Replace System.out.println etc with logger
+//TODO: Replace System.out.println etc with logger (I think is almost done)
 	public static FileConfiguration config;
-
+	
 	void setupConfig(){		
     	config = getConfig();
-
+    	
     	try{
     	File XBank = new File("plugins" + File.separator + "XBank" + File.separator + "config.yml");
     	XBank.mkdir();
     	saveConfig();
     	}catch(Exception e){
-		System.out.println("[XBank] There was a error, please send this stacktrace to the XBank dev team on bukkitdev via a ticket.");
+		log.severe("[XBank] There was a error, please send this stacktrace to the XBank dev team on bukkitdev via a ticket.");
     		e.printStackTrace();
     	}
     	if(!config.contains("xp.config.minimumdeposit")){
@@ -75,7 +76,9 @@ public class XBank extends JavaPlugin {
         return (permission != null);
     }
 
+    public Logger log;
     public void onEnable() {
+    	log = getServer().getLogger();
     	setupPermissions();
     	setupConfig();
     	if(config.getBoolean("xp.config.usedatabase")){
@@ -86,7 +89,7 @@ public class XBank extends JavaPlugin {
 				e.printStackTrace();
 			}
     	}
-        System.out.println(this + " is now enabled!");
+        log.info(this + " is now enabled!");
     }
 
 
@@ -111,9 +114,7 @@ public class XBank extends JavaPlugin {
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-	//		System.out.println("[XBANK] NOT READY YET REVERTING TO FILE.");
-	
+			}	
 		
 		}
 		else{
@@ -156,11 +157,7 @@ public class XBank extends JavaPlugin {
     	            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     	        }
 			
-		}
-		
-		
-		
-    	if(args[0].equalsIgnoreCase("top")){
+		}else if(args[0].equalsIgnoreCase("top")){
     		if(config.getBoolean("xp.config.usedatabase")){
 				p.sendMessage("Not ready for databases yet. Sorry!");
 				return true;
@@ -200,7 +197,7 @@ public class XBank extends JavaPlugin {
         			config.set("xp.user." + target.getName(), 0);
     			}
         			sender.sendMessage("The player " + target.getName() + "'s account has been reset!");
-        			System.out.println("[XBank] " + p.getName() + " has just reset " + target.getName() + "'s account!");
+        			log.info("[XBank] " + p.getName() + " has just reset " + target.getName() + "'s account!");
         		
     			return true;
     		}else {
@@ -322,7 +319,7 @@ public class XBank extends JavaPlugin {
             	p.sendMessage("New balance: " + newbal);
         		p.sendMessage("XP: " + p.getLevel());
             	saveConfig();
-
+            		
             	return true;
 
     		}
