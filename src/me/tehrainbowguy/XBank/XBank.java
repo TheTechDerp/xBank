@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.ChatColor;
@@ -47,6 +48,12 @@ public class XBank extends JavaPlugin {
 		log.severe("[XBank] There was a error, please send this stacktrace to the XBank dev team on bukkitdev via a ticket.");
     		e.printStackTrace();
     	}
+    	if(!config.contains("xp.config.charge")){
+        	config.set("xp.config.charge", true);
+		}
+    	if(!config.contains("xp.config.chargeamt")){
+        	config.set("xp.config.chargeamt", 0.50);
+		}
     	if(!config.contains("xp.config.minimumdeposit")){
         	config.set("xp.config.minimumdeposit", 1);
 		}
@@ -80,6 +87,7 @@ public class XBank extends JavaPlugin {
     public void onEnable() {
     	log = getServer().getLogger();
     	setupPermissions();
+    	setupEconomy();
     	setupConfig();
     	if(config.getBoolean("xp.config.usedatabase")){
     		try {
@@ -93,7 +101,24 @@ public class XBank extends JavaPlugin {
     }
 
 
+public boolean hasPerm(Player player, String perm){
+	if(permission == null){
+		return player.isOp();
+	}else{
+		return permission.has(player, perm);
+	}
+}
 
+public static Economy economy = null;
+
+private boolean setupEconomy() {
+    RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+    if (economyProvider != null) {
+        economy = economyProvider.getProvider();
+    }
+
+    return (economy != null);
+}
     
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(sender instanceof Player || command.getName().equalsIgnoreCase("xbank")){
@@ -104,7 +129,7 @@ public class XBank extends JavaPlugin {
 			
 		}
 			Player p = 	(Player) sender;
-		if(!permission.has(p, "XBank.use")){
+		if(!hasPerm(p, "XBank.use")){
 			p.sendMessage("You do not have permission to use XBank.");
 			return true;
 		}
@@ -123,8 +148,9 @@ public class XBank extends JavaPlugin {
 	        	saveConfig();
 	        	}
 		}
+		
 		if(args[0].equalsIgnoreCase("export")){
-			if(!permission.has(p, "XBank.export")){
+			if(!hasPerm(p, "XBank.export")){
 				p.sendMessage("You do not have permission to do this.");
 				return true;
 			}
@@ -182,7 +208,7 @@ public class XBank extends JavaPlugin {
     	    
     	    return true;
     	} else if(args[0].equalsIgnoreCase("reset")){
-    	if(permission.has(p, "xbank.reset")){
+    	if(hasPerm(p, "xbank.reset")){
     		if(args.length == 2){
         		OfflinePlayer target = getServer().getOfflinePlayer(args[1]);
         		if(config.getBoolean("xp.config.usedatabase")){
@@ -272,8 +298,7 @@ public class XBank extends JavaPlugin {
     	//	p.sendMessage("XP: " + p.getLevel());
     		return true;
     	}
-    	
-    	if(args[0].equalsIgnoreCase("deposit")){
+		else if(args[0].equalsIgnoreCase("deposit")){
     		if(Util.checkString(args[1])){
     			sender.sendMessage("No cheating.");
     			return true;
@@ -300,6 +325,19 @@ public class XBank extends JavaPlugin {
     			return true;
     		}
     		if(currxp >=  wanttodep ){
+    			if(config.getBoolean("xp.config.charge")){
+    			if(!economy.has(p.getName(), wanttodep * config.getDouble("xp.config.chargeamt"))){
+    				p.sendMessage(ChatColor.RED + "You are too poor.");
+    				return true;
+    			}
+    			else{
+    				economy.withdrawPlayer(p.getName(), wanttodep * config.getDouble("xp.config.chargeamt"));
+    				p.sendMessage("You were charged " + wanttodep * config.getDouble("xp.config.chargeamt") + "!");
+    			}
+    			}
+    		if(config.getBoolean("xp.config.charge")){
+    			
+    		}
     			int newbal = 0;
         		if(config.getBoolean("xp.config.usedatabase")){
         			try {
