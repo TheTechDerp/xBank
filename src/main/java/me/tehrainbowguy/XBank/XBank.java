@@ -120,6 +120,9 @@ private boolean setupEconomy() {
     return (economy != null);
 }
     
+public void successMessage(Player p, String message){
+	p.sendMessage(ChatColor.GREEN + "[XBank]: " + message);
+}
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(sender instanceof Player || command.getName().equalsIgnoreCase("xbank")){
 		
@@ -222,7 +225,7 @@ private boolean setupEconomy() {
     			}else {
         			config.set("xp.user." + target.getName(), 0);
     			}
-        			sender.sendMessage("The player " + target.getName() + "'s account has been reset!");
+        		successMessage((Player) sender, "The player " + target.getName() + "'s account has been reset!");
         			log.info("[XBank] " + p.getName() + " has just reset " + target.getName() + "'s account!");
         		
     			return true;
@@ -272,8 +275,8 @@ private boolean setupEconomy() {
     			}
             	p.setLevel(currxp + wanttowith);
 
-            	p.sendMessage("New balance: " + newbal);
-        		p.sendMessage("XP: " + p.getLevel());
+            	successMessage(p, "New balance: " + newbal);
+            	successMessage(p, "XP: " + p.getLevel());
             	saveConfig();
 
             	return true;
@@ -294,7 +297,7 @@ private boolean setupEconomy() {
     		}else {
     			bal = config.getInt("xp.user." + p.getName().toString());
     		}
-    		p.sendMessage(ChatColor.GREEN + "[XBank] Your balance is " + bal );
+    		successMessage(p, "Your balance is " + bal );
     	//	p.sendMessage("XP: " + p.getLevel());
     		return true;
     	}
@@ -332,12 +335,10 @@ private boolean setupEconomy() {
     			}
     			else{
     				economy.withdrawPlayer(p.getName(), wanttodep * config.getDouble("xp.config.chargeamt"));
-    				p.sendMessage("You were charged " + wanttodep * config.getDouble("xp.config.chargeamt") + "!");
+    				successMessage(p, "You were charged " + wanttodep * config.getDouble("xp.config.chargeamt") + "!");
     			}
     			}
-    		if(config.getBoolean("xp.config.charge")){
-    			
-    		}
+    		
     			int newbal = 0;
         		if(config.getBoolean("xp.config.usedatabase")){
         			try {
@@ -354,8 +355,8 @@ private boolean setupEconomy() {
         		}
             	p.setLevel(currxp - wanttodep);
 
-            	p.sendMessage("New balance: " + newbal);
-        		p.sendMessage("XP: " + p.getLevel());
+            	successMessage(p, "New balance: " + newbal);
+            	successMessage(p, "XP: " + p.getLevel());
             	saveConfig();
             		
             	return true;
@@ -392,8 +393,8 @@ private boolean setupEconomy() {
     		if(currxp >=  wanttodep ){
     			p.setLevel(currxp - wanttodep);
             	target.setLevel(targetxp + wanttodep );
-            	target.sendMessage(p.getDisplayName() + " sent you " + wanttodep + " levels.");
-            	p.sendMessage("You sent " + wanttodep + " Levels to " + target.getDisplayName() + ".");
+            	successMessage(target, p.getDisplayName() + " sent you " + wanttodep + " levels.");
+            	successMessage(p, "You sent " + wanttodep + " Levels to " + target.getDisplayName() + ".");
     		}else {
     			p.sendMessage("Sorry you need more XP");	
     		}
