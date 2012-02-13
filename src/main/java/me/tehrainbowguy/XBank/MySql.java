@@ -29,12 +29,19 @@ public class MySql {
         
             ConfigurationSection groupSection = config.getConfigurationSection("xp.user"); //saves the section we are in for re-use
     	    Set<String> list = groupSection.getKeys(false); //grabs all keys in the section
-    	    Map<String, Integer> map = new LinkedHashMap<String, Integer>(); //this is the map we will store the keys and values in
             
 
     	    for (String key : list) { //iterate over all keys
-    	    	
-    	    }    	
+    	    	//map.put(key, groupSection.getInt(key))
+    	    	try {
+					createUserFromString(key,groupSection.getInt(key));
+					System.out.println("Converting user" + key);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    	  }
+    	    System.out.println("Finished converting config... You may now clear the config of users.");
     }
     
 	public static void createTables() throws SQLException{
@@ -88,6 +95,26 @@ public class MySql {
 		}
 		else {
 			PreparedStatement Statement1 = conn.prepareStatement("INSERT INTO `XBank` (`id`, `User`, `Balance`) VALUES (NULL, '"+ player.getName() + "', '0');"); //Put your query in the quotes 
+			Statement1.executeUpdate();
+			Statement1.close();
+			//INSERT INTO `XBank` (`id`, `User`, `Balance`) VALUES (NULL, 'TehRainbowGuy', '0');
+		}
+		state.close();
+		conn.close(); //Closes the connection
+	}
+	public static void createUserFromString(String player, int bal) throws SQLException{
+		Connection conn = DriverManager.getConnection(url, user, pass); //Creates the connection
+	Statement state = conn.createStatement();
+	final ResultSet rs = state.executeQuery("SELECT * FROM `XBank` WHERE User='"+ player + "';");
+	
+		
+		if(rs.first())
+		{
+			conn.close();
+			return;
+		}
+		else {
+			PreparedStatement Statement1 = conn.prepareStatement("INSERT INTO `XBank` (`id`, `User`, `Balance`) VALUES (NULL, '"+ player + "', '"+ bal +"');"); //Put your query in the quotes 
 			Statement1.executeUpdate();
 			Statement1.close();
 			//INSERT INTO `XBank` (`id`, `User`, `Balance`) VALUES (NULL, 'TehRainbowGuy', '0');

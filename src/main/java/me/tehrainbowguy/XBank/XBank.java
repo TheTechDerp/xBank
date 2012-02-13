@@ -95,6 +95,9 @@ public class XBank extends JavaPlugin {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+    		if(config.contains("xp.user")){
+    			MySql.convertYML(config);
+			}
     	}
         log.info(this + " is now enabled!");
     }
