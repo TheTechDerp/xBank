@@ -8,7 +8,10 @@ import java.util.regex.Pattern;
 
 public class Util {
 
-	
+	public void successMessage(Player p, String message){
+    p.sendMessage(ChatColor.GREEN + "[XBank]: " + message);
+    }
+
     public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map) {
     	Comparator<K> valueComparator =  new Comparator<K>() {
     	    public int compare(K k1, K k2) {
