@@ -35,7 +35,7 @@ public class MySql {
     	    	//map.put(key, groupSection.getInt(key))
     	    	try {
 					createUserFromString(key,groupSection.getInt(key));
-					System.out.println("Converting user" + key);
+					System.out.println("Converting user " + key);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
