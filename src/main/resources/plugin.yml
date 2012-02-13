@@ -4,7 +4,7 @@ generator: http://dinnerbone.com/minecraft/tools/pluginator/
 main: me.tehrainbowguy.XBank.XBank
 name: XBank
 startup: postworld
-version: '1.5'
+version: '1.6'
 commands:
     xbank:
         description: Description
