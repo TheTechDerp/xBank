@@ -5,14 +5,17 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+
 
 public class Util {
 
-	public void successMessage(Player p, String message){
+	public static void successMessage(Player p, String message){
     p.sendMessage(ChatColor.GREEN + "[XBank]: " + message);
     }
     
-    public void failMessage(Player p, String message){
+    public static void failMessage(Player p, String message){
     p.sendMessage(ChatColor.RED + "[XBank]: " + message);
     }
 
