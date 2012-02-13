@@ -228,18 +228,18 @@ private boolean setupEconomy() {
         		
     			return true;
     		}else {
-    			sender.sendMessage("You need to supply a name!");
+    			Util.failMessage(p, "You need to supply a name!");
         		return true;
     		}
     	}
     	else
     	{
-    		sender.sendMessage("You are not allowed to do this");
+    		Util.failMessage(p, "You are not allowed to do this");
     		return true;
     	}
     	}else if(args[0].equalsIgnoreCase("withdraw")){
     		if(Util.checkString(args[1])){
-    			sender.sendMessage("No cheating.");
+    			Util.failMessage(p, "No cheating.");
     			return true;		
     		}
     		int currxp = p.getLevel();
@@ -301,7 +301,7 @@ private boolean setupEconomy() {
     	}
 		else if(args[0].equalsIgnoreCase("deposit")){
     		if(Util.checkString(args[1])){
-    			sender.sendMessage("No cheating.");
+    			Util.failMessage(p, "No cheating.");
     			return true;
     			
     		}
@@ -322,13 +322,13 @@ private boolean setupEconomy() {
     		}
     		int wanttodep = Integer.parseInt(arg1);
     		if(config.getInt("xp.config.minimumdeposit") > wanttodep){
-    			p.sendMessage("You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"));
+    			Util.failMessage(p, "You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"));
     			return true;
     		}
     		if(currxp >=  wanttodep ){
     			if(config.getBoolean("xp.config.charge")){
     			if(!economy.has(p.getName(), wanttodep * config.getDouble("xp.config.chargeamt"))){
-    				p.sendMessage(ChatColor.RED + "You are too poor.");
+    				Util.failMessage(p, "You are too poor.");
     				return true;
     			}
     			else{
@@ -364,22 +364,22 @@ private boolean setupEconomy() {
     		else
     		
     		{	
-    	p.sendMessage("Not enough xp");	
+    	    Util.failMessage(p, "Not enough xp");	
         	return true;
     		}
     	} else if(args[0].equalsIgnoreCase("send")){
     		if(Util.checkString(args[2])){
-    			sender.sendMessage("No cheating.");
+    			Util.failMessage(p, "No cheating.");
     			return true;
     			
     		}
     		 Player target = getServer().getPlayer(args[1]);
     		 if(target == null){
-    			 p.sendMessage("Could not find player.");
+    			 Util.failMessage(p, "Could not find player.");
     			 return true;
     		 } else if (target == p)
     		 {
-    			 sender.sendMessage("No cheating.");
+    			 Util.failMessage(p, "No cheating.");
      			return true;
     		 }
     		 else
@@ -394,7 +394,7 @@ private boolean setupEconomy() {
             	Util.successMessage(target, p.getDisplayName() + " sent you " + wanttodep + " levels.");
             	Util.successMessage(p, "You sent " + wanttodep + " Levels to " + target.getDisplayName() + ".");
     		}else {
-    			p.sendMessage("Sorry you need more XP");	
+    		Util.failMessage(p, "Sorry you need more XP");	
     		}
     		return true;	
     		 }
@@ -402,7 +402,7 @@ private boolean setupEconomy() {
     	
     		}
     	else {
-    		p.sendMessage("Wut?");
+    		Util.failMessage(p, "Wut?");
     		return true;
     	}
     		
