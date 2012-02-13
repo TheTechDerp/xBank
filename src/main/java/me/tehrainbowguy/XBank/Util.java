@@ -11,6 +11,10 @@ public class Util {
 	public void successMessage(Player p, String message){
     p.sendMessage(ChatColor.GREEN + "[XBank]: " + message);
     }
+    
+    public void failMessage(Player p, String message){
+    p.sendMessage(ChatColor.RED + "[XBank]: " + message);
+    }
 
     public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map) {
     	Comparator<K> valueComparator =  new Comparator<K>() {
