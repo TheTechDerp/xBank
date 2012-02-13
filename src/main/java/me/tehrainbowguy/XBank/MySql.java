@@ -21,6 +21,17 @@ public class MySql {
 	static String user = config.getString("xp.config.user");
 	static String pass = config.getString("xp.config.password");
 	
+    public static void convertYML(FileConfiguration config){
+        
+            ConfigurationSection groupSection = config.getConfigurationSection("xp.user"); //saves the section we are in for re-use
+    	    Set<String> list = groupSection.getKeys(false); //grabs all keys in the section
+    	    Map<String, Integer> map = new LinkedHashMap<String, Integer>(); //this is the map we will store the keys and values in
+            
+
+    	    for (String key : list) { //iterate over all keys
+    	    }    	
+    }
+    
 	public static void createTables() throws SQLException{
 		Connection conn = DriverManager.getConnection(url, user, pass); //Creates the connection
 		PreparedStatement Statement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `XBank` (  `id` int(11) NOT NULL auto_increment,  `User` varchar(50) NOT NULL,  `Balance` int(11) NOT NULL,  PRIMARY KEY  (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;"); //Put your query in the quotes
@@ -78,8 +89,6 @@ public class MySql {
 		}
 		state.close();
 		conn.close(); //Closes the connection
-		return;
-
 	}
 	
 }

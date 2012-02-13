@@ -33,8 +33,7 @@ public class XBank extends JavaPlugin {
         log.info(this + " is now disabled!");
     }
 
-//DONE: Finish MySql statements.
-//TODO: Replace System.out.println etc with logger (I think is almost done)
+//TODO: Replace System.out.println etc with logger (I think is almost done) #Rainbow is lazy
 	public static FileConfiguration config;
 	
 	void setupConfig(){		
