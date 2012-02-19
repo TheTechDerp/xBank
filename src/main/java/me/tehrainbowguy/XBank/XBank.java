@@ -225,23 +225,23 @@ private boolean setupEconomy() {
     			}else {
         			config.set("xp.user." + target.getName(), 0);
     			}
-        		Util.successMessage((Player) sender, "The player " + target.getName() + "'s account has been reset!");
+        		Util.Message((Player) sender, "The player " + target.getName() + "'s account has been reset!", true);
         			log.info("[XBank] " + p.getName() + " has just reset " + target.getName() + "'s account!");
         		
     			return true;
     		}else {
-    			Util.failMessage(p, "You need to supply a name!");
+    			Util.Message(p, "You need to supply a name!",false);
         		return true;
     		}
     	}
     	else
     	{
-    		Util.failMessage(p, "You are not allowed to do this");
+    		Util.Message(p, "You are not allowed to do this",false);
     		return true;
     	}
     	}else if(args[0].equalsIgnoreCase("withdraw")){
     		if(Util.checkString(args[1])){
-    			Util.failMessage(p, "No cheating.");
+    			Util.Message(p, "No cheating.",false);
     			return true;		
     		}
     		int currxp = p.getLevel();
@@ -275,8 +275,8 @@ private boolean setupEconomy() {
     			}
             	p.setLevel(currxp + wanttowith);
 
-            	Util.successMessage(p, "New balance: " + newbal);
-            	Util.successMessage(p, "XP: " + p.getLevel());
+            	Util.Message(p, "New balance: " + newbal,true);
+            	Util.Message(p, "XP: " + p.getLevel(),true);
             	saveConfig();
 
             	return true;
@@ -297,13 +297,13 @@ private boolean setupEconomy() {
     		}else {
     			bal = config.getInt("xp.user." + p.getName().toString());
     		}
-    		Util.successMessage(p, "Your balance is " + bal );
+    		Util.Message(p, "Your balance is " + bal, true);
     	//	p.sendMessage("XP: " + p.getLevel());
     		return true;
     	}
 		else if(args[0].equalsIgnoreCase("deposit")){
     		if(Util.checkString(args[1])){
-    			Util.failMessage(p, "No cheating.");
+    			Util.Message(p, "No cheating.", false);
     			return true;
     			
     		}
@@ -324,18 +324,18 @@ private boolean setupEconomy() {
     		}
     		int wanttodep = Integer.parseInt(arg1);
     		if(config.getInt("xp.config.minimumdeposit") > wanttodep){
-    			Util.failMessage(p, "You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"));
+    			Util.Message(p, "You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"), false);
     			return true;
     		}
     		if(currxp >=  wanttodep ){
     			if(config.getBoolean("xp.config.charge")){
     			if(!economy.has(p.getName(), wanttodep * config.getDouble("xp.config.chargeamt"))){
-    				Util.failMessage(p, "You are too poor.");
+    				Util.Message(p, "You are too poor.", false);
     				return true;
     			}
     			else{
     				economy.withdrawPlayer(p.getName(), wanttodep * config.getDouble("xp.config.chargeamt"));
-    				Util.successMessage(p, "You were charged " + wanttodep * config.getDouble("xp.config.chargeamt") + "!");
+    				Util.Message(p, "You were charged " + wanttodep * config.getDouble("xp.config.chargeamt") + "!", true);
     			}
     			}
     		
@@ -355,8 +355,8 @@ private boolean setupEconomy() {
         		}
             	p.setLevel(currxp - wanttodep);
 
-            	Util.successMessage(p, "New balance: " + newbal);
-            	Util.successMessage(p, "XP: " + p.getLevel());
+            	Util.Message(p, "New balance: " + newbal, true);
+            	Util.Message(p, "XP: " + p.getLevel(), true);
             	saveConfig();
             		
             	return true;
@@ -366,22 +366,22 @@ private boolean setupEconomy() {
     		else
     		
     		{	
-    	    Util.failMessage(p, "Not enough xp");	
+    	    Util.Message(p, "Not enough xp",false);	
         	return true;
     		}
     	} else if(args[0].equalsIgnoreCase("send")){
     		if(Util.checkString(args[2])){
-    			Util.failMessage(p, "No cheating.");
+    			Util.Message(p, "No cheating.", false);
     			return true;
     			
     		}
     		 Player target = getServer().getPlayer(args[1]);
     		 if(target == null){
-    			 Util.failMessage(p, "Could not find player.");
+    			 Util.Message(p, "Could not find player.", false);
     			 return true;
     		 } else if (target == p)
     		 {
-    			 Util.failMessage(p, "No cheating.");
+    			 Util.Message(p, "No cheating.", false);
      			return true;
     		 }
     		 else
@@ -393,10 +393,10 @@ private boolean setupEconomy() {
     		if(currxp >=  wanttodep ){
     			p.setLevel(currxp - wanttodep);
             	target.setLevel(targetxp + wanttodep );
-            	Util.successMessage(target, p.getDisplayName() + " sent you " + wanttodep + " levels.");
-            	Util.successMessage(p, "You sent " + wanttodep + " Levels to " + target.getDisplayName() + ".");
+            	Util.Message(target, p.getDisplayName() + " sent you " + wanttodep + " levels.", true);
+            	Util.Message(p, "You sent " + wanttodep + " Levels to " + target.getDisplayName() + ".", true);
     		}else {
-    		Util.failMessage(p, "Sorry you need more XP");	
+    		Util.Message(p, "Sorry you need more XP",false);	
     		}
     		return true;	
     		 }
@@ -404,7 +404,7 @@ private boolean setupEconomy() {
     	
     		}
     	else {
-    		Util.failMessage(p, "Wut?");
+    		Util.Message(p, "Wut?" , false);
     		return true;
     	}
     		
