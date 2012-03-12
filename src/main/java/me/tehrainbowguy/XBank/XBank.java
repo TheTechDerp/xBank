@@ -383,6 +383,10 @@ private boolean setupEconomy() {
     			 Util.Message(p, "No cheating.", false);
      			return true;
     		 }
+             else if (p.getWorld() == target.getWorld()){
+                   Util.Message(p,"You need to be in the same world as " + target.getName() + " to make a trade, sorry for the inconvenience", false);
+                  return true;
+             }
     		 else
     		 {
     			 
