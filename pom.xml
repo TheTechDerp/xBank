@@ -31,11 +31,5 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-			<groupId>net.milkbowl.vault</groupId>
-			<artifactId>Vault</artifactId>
-			<version>1.2.8</version>
-			<scope>provided</scope>
-		</dependency>
     </dependencies>
 </project>

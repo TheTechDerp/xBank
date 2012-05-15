@@ -1,26 +1,18 @@
 package me.tehrainbowguy.XBank;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.logging.Logger;
-
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
-
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.sql.SQLException;
+import java.util.logging.Logger;
 
 
 public class XBank extends JavaPlugin {
@@ -46,6 +38,9 @@ public class XBank extends JavaPlugin {
 		log.severe("[XBank] There was a error, please send this stacktrace to the XBank dev team on bukkitdev via a ticket.");
     		e.printStackTrace();
     	}
+        if(!config.contains("xp.config.buyingprice")){
+            config.set("xp.config.buyingprice", 20.0);
+        }
     	if(!config.contains("xp.config.charge")){
         	config.set("xp.config.charge", true);
 		}
@@ -130,7 +125,8 @@ private boolean setupEconomy() {
 			return true;
 			
 		}
-			Player p = 	(Player) sender;
+
+        Player p = 	(Player) sender;
 		if(!hasPerm(p, "XBank.use")){
 			p.sendMessage("You do not have permission to use XBank.");
 			return true;
@@ -141,134 +137,81 @@ private boolean setupEconomy() {
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}	
-		
+			}
 		}
 		else{
-			if(!config.contains("xp.user." + p.getName())){
-	        	config.set("xp.user." + p.getName(), 0);
-	        	saveConfig();
-	        	}
-		}
-		
-		if(args[0].equalsIgnoreCase("export")){
-			if(!hasPerm(p, "XBank.export")){
-				p.sendMessage("You do not have permission to do this.");
-				return true;
-			}
-			if(config.getBoolean("xp.config.usedatabase")){
-				p.sendMessage("Not ready for databases yet. Sorry!");
-				return true;
-			}
-			
-    	    ConfigurationSection groupSection = config.getConfigurationSection("xp.user"); //saves the section we are in for re-use
-    	    Set<String> list = groupSection.getKeys(false); //grabs all keys in the section
-    	    Map<String, Integer> map = new LinkedHashMap<String, Integer>(); //this is the map we will store the keys and values in
-         
+                    if(!config.contains("xp.user." + p.getName())){
+                        config.set("xp.user." + p.getName(), 0);
+                        saveConfig();
+                    }
+                }
 
-    	    for (String key : list) { //iterate over all keys
-    	    map.put(key, groupSection.getInt(key)); //save the values of the keys in our map, assuming that all values are integers
-    	    }    	
-    	    Map<String, Integer> sorted = Util.sortByValues(map);
-    	    int i = 1;    	    
-    	       try {
-    	            FileWriter writer = new FileWriter("plugins/XBank/export.log", true);
-    	            
-    	            for( Entry<String, Integer> key : sorted.entrySet()){
-      	    	    	writer.write("\n" + i + ". " + key.getKey() + " - " + key.getValue());
-    	    	    	i++;
-    	    	 
-    	    	    }
-    	            
-    	            writer.close();
-    	        } catch (IOException e) {
-    	            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-    	        }
-			
-		}else if(args[0].equalsIgnoreCase("top")){
-    		if(config.getBoolean("xp.config.usedatabase")){
-				p.sendMessage("Not ready for databases yet. Sorry!");
-				return true;
-			}
-    	    ConfigurationSection groupSection = config.getConfigurationSection("xp.user"); //saves the section we are in for re-use
-    	    Set<String> list = groupSection.getKeys(false); //grabs all keys in the section
-    	    Map<String, Integer> map = new LinkedHashMap<String, Integer>(); //this is the map we will store the keys and values in
-         
+            if(args[0].equalsIgnoreCase("reset")){
+                    if(hasPerm(p, "xbank.reset")){
+                        if(args.length != 2){
+                            Util.Message(p, "derp?", false);
+                            return true;
+                        }
+                            OfflinePlayer target = getServer().getOfflinePlayer(args[1]);
+                            if(config.getBoolean("xp.config.usedatabase")){
+                                try {
+                                    MySql.setBalanceOffline(target, 0);
+                            } catch (SQLException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
 
-    	    for (String key : list) { //iterate over all keys
-    	    map.put(key, groupSection.getInt(key)); //save the values of the keys in our map, assuming that all values are integers
-    	    }    	
-    	    Map<String, Integer> sorted = Util.sortByValues(map);
-    	    int i = 1;
-    	    
-    	    for( Entry<String, Integer> key : sorted.entrySet()){
-    	    if(i <= 10){
-    	    	sender.sendMessage(i + ". " + key.getKey() +" - " + key.getValue());
-    	    	i++;
-    	    }
-    	    }
-    	    
-    	    return true;
-    	} else if(args[0].equalsIgnoreCase("reset")){
-    	if(hasPerm(p, "xbank.reset")){
-    		if(args.length == 2){
-        		OfflinePlayer target = getServer().getOfflinePlayer(args[1]);
-        		if(config.getBoolean("xp.config.usedatabase")){
-    				try {
-						MySql.setBalanceOffline(target, 0);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-    				
-    			}else {
-        			config.set("xp.user." + target.getName(), 0);
-    			}
-        		Util.Message((Player) sender, "The player " + target.getName() + "'s account has been reset!", true);
-        			log.info("[XBank] " + p.getName() + " has just reset " + target.getName() + "'s account!");
-        		
-    			return true;
-    		}else {
-    			Util.Message(p, "You need to supply a name!",false);
-        		return true;
-    		}
-    	}
-    	else
-    	{
-    		Util.Message(p, "You are not allowed to do this",false);
-    		return true;
-    	}
-    	}else if(args[0].equalsIgnoreCase("withdraw")){
-    		if(Util.checkString(args[1])){
-    			Util.Message(p, "No cheating.",false);
-    			return true;		
-    		}
-    		int currxp = p.getLevel();
-    		//p.sendMessage("" + currxp);
-    		int oldbal = 0;
-    		if(config.getBoolean("xp.config.usedatabase")){
-    			try {
-					oldbal = MySql.getBalance(p);
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-    		}else{
-    		oldbal = config.getInt("xp.user." + p.getName().toString());
-    		}
-    		int wanttowith = Integer.parseInt(args[1]);
-    		if(oldbal >= wanttowith ){
-    			int newbal = 0;
-    			if(config.getBoolean("xp.config.usedatabase")){
-    				try {
-						MySql.setBalance(p, oldbal - wanttowith);
+                        }else {
+                                config.set("xp.user." + target.getName(), 0);
+                            }
+                            Util.Message((Player) sender, "The player " + target.getName() + "'s account has been reset!", true);
+                            log.info("[XBank] " + p.getName() + " has just reset " + target.getName() + "'s account!");
 
-						newbal = MySql.getBalance(p);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-    			} else{
+                            return true;
+
+                    }
+                    else
+                    {
+                        Util.Message(p, "You are not allowed to do this",false);
+                        return true;
+                    }
+            }
+
+            if(args[0].equalsIgnoreCase("withdraw")){
+                if(args.length != 2){
+                    Util.Message(p, "derp?", false);
+                    return true;
+                }
+                    if(Util.checkString(args[1])){
+                        Util.Message(p, "No cheating.",false);
+                        return true;
+                    }
+                    int currxp = p.getLevel();
+                    //p.sendMessage("" + currxp);
+                    int oldbal = 0;
+                    if(config.getBoolean("xp.config.usedatabase")){
+                        try {
+                            oldbal = MySql.getBalance(p);
+                        } catch (SQLException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }else{
+                        oldbal = config.getInt("xp.user." + p.getName().toString());
+                    }
+                    int wanttowith = Integer.parseInt(args[1]);
+                    if(oldbal >= wanttowith ){
+                        int newbal = 0;
+                        if(config.getBoolean("xp.config.usedatabase")){
+                            try {
+                                MySql.setBalance(p, oldbal - wanttowith);
+
+                                newbal = MySql.getBalance(p);
+                            } catch (SQLException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        } else{
             	config.set("xp.user." + p.getName().toString(), oldbal - wanttowith);
             		newbal = config.getInt("xp.user." + p.getName().toString());
     			}
@@ -283,8 +226,14 @@ private boolean setupEconomy() {
     	p.sendMessage("Not enough xp");	
     	return true;
     	}
-			
-		}else if(args[0].equalsIgnoreCase("balance")){
+   }
+
+
+     if(args[0].equalsIgnoreCase("balance")){
+         if(args.length != 1){
+             Util.Message(p, "derp?", false);
+             return true;
+         }
     		int bal = 0;
     		if(config.getBoolean("xp.config.usedatabase")){
     			try {
@@ -300,7 +249,13 @@ private boolean setupEconomy() {
     	//	p.sendMessage("XP: " + p.getLevel());
     		return true;
     	}
-		else if(args[0].equalsIgnoreCase("deposit")){
+
+
+	     if(args[0].equalsIgnoreCase("deposit")){
+             if(args.length != 2){
+                 Util.Message(p, "derp?", false);
+                 return true;
+             }
     		if(Util.checkString(args[1])){
     			Util.Message(p, "No cheating.", false);
     			return true;
@@ -368,7 +323,47 @@ private boolean setupEconomy() {
     	    Util.Message(p, "Not enough xp",false);	
         	return true;
     		}
-    	} else if(args[0].equalsIgnoreCase("send")){
+    	}
+
+            if(args[0].equalsIgnoreCase("sell")){
+                if(args.length != 2){
+                    Util.Message(p, "derp?", false);
+                    return true;
+                }
+                if(Util.checkString(args[1])){
+                    Util.Message(p, "No cheating.", false);
+                    return true;
+
+                }
+
+                String arg1 = args[1];
+                int currxp = p.getLevel();
+                int wanttodep = Integer.parseInt(arg1);
+                if(config.getInt("xp.config.minimumdeposit") > wanttodep){
+                    Util.Message(p, "You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"), false);
+                    return true;
+                }
+                if(currxp >=  wanttodep ){
+                    p.setLevel(currxp - wanttodep);
+//                    log.info("Wanttodep = " + wanttodep);
+//                    log.info("buyamt = " +  config.getDouble("xp.config.buyingprice"));
+
+                    economy.depositPlayer(p.getName(), wanttodep * config.getDouble("xp.config.buyingprice"));
+                    Util.Message(p,"Deposited " + wanttodep * config.getDouble("xp.config.buyingprice") , true);
+                }
+                else
+                {
+                    Util.Message(p, "Not enough xp",false);
+                    return true;
+                }
+                return true;
+            }
+
+            if(args[0].equalsIgnoreCase("send")){
+                if(args.length != 3){
+                    Util.Message(p, "derp?", false);
+                    return true;
+                }
     		if(Util.checkString(args[2])){
     			Util.Message(p, "No cheating.", false);
     			return true;
@@ -406,14 +401,13 @@ private boolean setupEconomy() {
     		
     	
     		}
-    	else {
-    		Util.Message(p, "Wut?" , false);
-    		return true;
-    	}
-    		
-    		
-		}    	
-    	return false;	
+
+
+            Util.Message(p, "Wut?" , false);
+
+        }
+
+    	return false;
  	}
 
 }
