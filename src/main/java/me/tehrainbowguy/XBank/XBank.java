@@ -215,21 +215,9 @@ public class XBank extends JavaPlugin {
                     Message(p, "derp?", false);
                     return true;
                 }
-
                 String arg1 = args[1];
                 int currxp = p.getLevel();
-                //p.sendMessage("" + currxp);
-                int currbal = 0;
-                if (config.getBoolean("xp.config.usedatabase")) {
-                    try {
-                        currbal = MySql.getBalance(p);
-                    } catch (SQLException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                } else {
-                    currbal = config.getInt("xp.user." + p.getName().toString());
-                }
+                int currbal = getBal(p);
                 int wanttodep = Integer.parseInt(arg1);
                 if (config.getInt("xp.config.minimumdeposit") > wanttodep) {
                     Message(p, "You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"), false);
@@ -245,23 +233,9 @@ public class XBank extends JavaPlugin {
                             Message(p, "You were charged " + wanttodep * config.getDouble("xp.config.chargeamt") + "!", true);
                         }
                     }
-
-                    int newbal = 0;
-                    if (config.getBoolean("xp.config.usedatabase")) {
-                        try {
-                            MySql.setBalance(p, currbal + wanttodep);
-
-                            newbal = MySql.getBalance(p);
-                        } catch (SQLException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    } else {
-                        config.set("xp.user." + p.getName(), currbal + wanttodep);
-                        newbal = config.getInt("xp.user." + p.getName().toString());
-                    }
+                    setBal(p ,currbal + wanttodep);
+                    int newbal = getBal(p);
                     p.setLevel(currxp - wanttodep);
-
                     Message(p, "New balance: " + newbal, true);
                     Message(p, "XP: " + p.getLevel(), true);
                     saveConfig();
@@ -309,25 +283,16 @@ public class XBank extends JavaPlugin {
             }
 
             if (args[0].equalsIgnoreCase("send")) {
-                if (args.length != 3) {
+                if (args.length != 3 || checkString(args[2]) ) {
                     Message(p, "derp?", false);
                     return true;
-                }
-
-                if (checkString(args[2])) {
-                    Message(p, "No cheating.", false);
-                    return true;
-
                 }
                 Player target = getServer().getPlayer(args[1]);
                 if (target == null) {
                     Message(p, "Could not find player.", false);
                     return true;
                 } else if (target == p) {
-                    Message(p, "No cheating.", false);
-                    return true;
-                } else if (p.getWorld() != target.getWorld()) {
-                    Message(p, "You need to be in the same world as " + target.getName() + " to make a trade, sorry for the inconvenience", false);
+                    Message(p, "You can't send to your self!.", false);
                     return true;
                 } else {
 
