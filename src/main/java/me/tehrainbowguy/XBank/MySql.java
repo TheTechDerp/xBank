@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 
@@ -75,13 +76,12 @@ public class MySql {
         Statement.close(); //Closes the query
         conn.close(); //Closes the connection
     }
-
+    private static ArrayList<Player> seen = new ArrayList<Player>();
     public static void createUser(Player player) throws SQLException {
+        if(seen.contains(player)){return;}else{seen.add(player);} //Basic cache!
         Connection conn = DriverManager.getConnection(url, user, pass); //Creates the connection
         Statement state = conn.createStatement();
         final ResultSet rs = state.executeQuery("SELECT * FROM `XBank` WHERE User='" + player.getName() + "';");
-
-
         if (rs.first()) {
             conn.close();
             return;

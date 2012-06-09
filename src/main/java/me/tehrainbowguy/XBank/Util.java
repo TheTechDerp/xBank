@@ -3,6 +3,7 @@ package me.tehrainbowguy.XBank;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -42,5 +43,4 @@ public class Util {
         return hasSpecialChar;
 
     }
-
 }

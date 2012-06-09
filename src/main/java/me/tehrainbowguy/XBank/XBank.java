@@ -23,13 +23,9 @@ public class XBank extends JavaPlugin {
 
 
     public void onDisable() {
-
         log.info(this + " is now disabled!");
     }
-
-    //TODO: Replace System.out.println etc with logger (I think is almost done) #Rainbow is lazy
     public static FileConfiguration config;
-
     void setupConfig() {
         config = getConfig();
 
@@ -38,7 +34,7 @@ public class XBank extends JavaPlugin {
             XBank.mkdir();
             saveConfig();
         } catch (Exception e) {
-            log.severe("[XBank] There was a error, please send this stacktrace to the XBank dev team on bukkitdev via a ticket.");
+            log.severe("[XBank] There was a big ass error, you should poke rainbow!");
             e.printStackTrace();
         }
         if (!config.contains("xp.config.buyingprice")) {
@@ -53,9 +49,6 @@ public class XBank extends JavaPlugin {
         if (!config.contains("xp.config.minimumdeposit")) {
             config.set("xp.config.minimumdeposit", 1);
         }
-        if (!config.contains("xp.config.usedatabase")) {
-            config.set("xp.config.usedatabase", false);
-        }
         if (!config.contains("xp.config.database")) {
             config.set("xp.config.database", "jdbc:mysql://localhost:3306/minecraft");
         }
@@ -68,9 +61,7 @@ public class XBank extends JavaPlugin {
         saveConfig();
 
     }
-
     public static Permission permission = null;
-
     private Boolean setupPermissions() {
         RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
         if (permissionProvider != null) {
@@ -78,7 +69,6 @@ public class XBank extends JavaPlugin {
         }
         return (permission != null);
     }
-
     public Logger log;
 
     public void onEnable() {
@@ -86,7 +76,6 @@ public class XBank extends JavaPlugin {
         setupPermissions();
         setupEconomy();
         setupConfig();
-        if (config.getBoolean("xp.config.usedatabase")) {
             try {
                 createTables();
             } catch (SQLException e) {
@@ -96,10 +85,8 @@ public class XBank extends JavaPlugin {
             if (config.contains("xp.user")) {
                 convertYML(config);
             }
-        }
         log.info(this + " is now enabled!");
     }
-
 
     public boolean hasPerm(Player player, String perm) {
         if (permission == null) {
@@ -120,6 +107,30 @@ public class XBank extends JavaPlugin {
         return (economy != null);
     }
 
+    private int getBal(Player p){
+        int bal = 0;
+            try {
+                bal = MySql.getBalance(p);
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        return bal;
+    }
+    private void setBal(Player p, int newbal){
+            try {
+                MySql.setBalance(p, newbal);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+    }
+    private void resetBal(OfflinePlayer target){
+            try {
+                setBalanceOffline(target, 0);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+    }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player || command.getName().equalsIgnoreCase("xbank")) {
@@ -134,96 +145,44 @@ public class XBank extends JavaPlugin {
                 p.sendMessage("You do not have permission to use XBank.");
                 return true;
             }
-            if (config.getBoolean("xp.config.usedatabase")) {
                 try {
                     createUser(p);
                 } catch (SQLException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-            } else {
-                if (!config.contains("xp.user." + p.getName())) {
-                    config.set("xp.user." + p.getName(), 0);
-                    saveConfig();
-                }
-            }
 
             if (args[0].equalsIgnoreCase("reset")) {
-                if (hasPerm(p, "xbank.reset")) {
-                    if (args.length != 2) {
+                    if (args.length != 2 || !hasPerm(p, "xbank.reset")) {
                         Message(p, "derp?", false);
                         return true;
                     }
                     OfflinePlayer target = getServer().getOfflinePlayer(args[1]);
-                    if (config.getBoolean("xp.config.usedatabase")) {
-                        try {
-                            setBalanceOffline(target, 0);
-                        } catch (SQLException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-
-                    } else {
-                        config.set("xp.user." + target.getName(), 0);
-                    }
+                      resetBal(target);
                     Message((Player) sender, "The player " + target.getName() + "'s account has been reset!", true);
                     log.info("[XBank] " + p.getName() + " has just reset " + target.getName() + "'s account!");
-
-                    return true;
-
-                } else {
-                    Message(p, "You are not allowed to do this", false);
-                    return true;
-                }
+                return true;
             }
 
             if (args[0].equalsIgnoreCase("withdraw")) {
-                if (args.length != 2) {
+                if ((args.length != 2) || checkString(args[1])) {
                     Message(p, "derp?", false);
                     return true;
                 }
-                if (checkString(args[1])) {
-                    Message(p, "No cheating.", false);
-                    return true;
-                }
+
                 int currxp = p.getLevel();
-                //p.sendMessage("" + currxp);
-                int oldbal = 0;
-                if (config.getBoolean("xp.config.usedatabase")) {
-                    try {
-                        oldbal = MySql.getBalance(p);
-                    } catch (SQLException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                } else {
-                    oldbal = config.getInt("xp.user." + p.getName().toString());
-                }
+                int oldbal = getBal(p);
                 int wanttowith = Integer.parseInt(args[1]);
-                if (oldbal >= wanttowith) {
-                    int newbal = 0;
-                    if (config.getBoolean("xp.config.usedatabase")) {
-                        try {
-                            MySql.setBalance(p, oldbal - wanttowith);
 
-                            newbal = MySql.getBalance(p);
-                        } catch (SQLException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    } else {
-                        config.set("xp.user." + p.getName().toString(), oldbal - wanttowith);
-                        newbal = config.getInt("xp.user." + p.getName().toString());
-                    }
+                if (oldbal < wanttowith) {
+                    p.sendMessage("Not enough xp");
+                    return true;
+                } else {
+                    int bal2set = oldbal - wanttowith;
+                    setBal(p,bal2set);
+                    int newbal = getBal(p);
                     p.setLevel(currxp + wanttowith);
-
                     Message(p, "New balance: " + newbal, true);
                     Message(p, "XP: " + p.getLevel(), true);
-                    saveConfig();
-
-                    return true;
-                } else {
-                    p.sendMessage("Not enough xp");
                     return true;
                 }
             }
@@ -252,14 +211,9 @@ public class XBank extends JavaPlugin {
 
 
             if (args[0].equalsIgnoreCase("deposit")) {
-                if (args.length != 2) {
+                if (args.length != 2 || checkString(args[1])) {
                     Message(p, "derp?", false);
                     return true;
-                }
-                if (checkString(args[1])) {
-                    Message(p, "No cheating.", false);
-                    return true;
-
                 }
 
                 String arg1 = args[1];
