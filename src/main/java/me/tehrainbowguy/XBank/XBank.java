@@ -156,7 +156,19 @@ public class XBank extends JavaPlugin {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-
+            if(args[0].equalsIgnoreCase("reload")){
+               if(hasPerm(p,"xbank.reload")){
+                   setupPermissions();
+                   setupEconomy();
+                   setupConfig();
+                   try {
+                       closeConn();
+                       initDB();
+                   } catch (SQLException e) {
+                       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                   }
+               }
+            }
             if (args[0].equalsIgnoreCase("reset")) {
                     if (args.length != 2 || !hasPerm(p, "xbank.reset")) {
                         Message(p, "derp?", false);
