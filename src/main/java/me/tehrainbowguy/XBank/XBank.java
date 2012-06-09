@@ -23,6 +23,11 @@ public class XBank extends JavaPlugin {
 
 
     public void onDisable() {
+        try {
+            closeConn();
+        } catch (SQLException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
         log.info(this + " is now disabled!");
     }
     public static FileConfiguration config;
@@ -77,6 +82,7 @@ public class XBank extends JavaPlugin {
         setupEconomy();
         setupConfig();
             try {
+                initDB();
                 createTables();
             } catch (SQLException e) {
                 // TODO Auto-generated catch block
@@ -227,7 +233,6 @@ public class XBank extends JavaPlugin {
                     int newbal = getBal(p);
                     p.setLevel(currxp - wanttodep);
                     Message(p, "New balance: " + newbal, true);
-                    Message(p, "XP: " + p.getLevel(), true);
                     saveConfig();
 
                     return true;
