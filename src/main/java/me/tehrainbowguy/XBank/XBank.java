@@ -193,17 +193,7 @@ public class XBank extends JavaPlugin {
                     Message(p, "derp?", false);
                     return true;
                 }
-                int bal = 0;
-                if (config.getBoolean("xp.config.usedatabase")) {
-                    try {
-                        bal = MySql.getBalance(p);
-                    } catch (SQLException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                } else {
-                    bal = config.getInt("xp.user." + p.getName().toString());
-                }
+                int bal = getBal(p);
                 Message(p, "Your balance is " + bal, true);
                 //	p.sendMessage("XP: " + p.getLevel());
                 return true;
@@ -251,17 +241,10 @@ public class XBank extends JavaPlugin {
             }
 
             if (args[0].equalsIgnoreCase("sell")) {
-                if (args.length != 2) {
+                if (args.length != 2 || checkString(args[1])) {
                     Message(p, "derp?", false);
                     return true;
                 }
-
-                if (checkString(args[1])) {
-                    Message(p, "No cheating.", false);
-                    return true;
-
-                }
-
                 String arg1 = args[1];
                 int currxp = p.getLevel();
                 int wanttodep = Integer.parseInt(arg1);
