@@ -189,8 +189,13 @@ public class XBank extends JavaPlugin {
 
                 int currxp = p.getLevel();
                 int oldbal = getBal(p);
-                int wanttowith = Integer.parseInt(args[1]);
-
+                int wanttowith;
+                try{
+                 wanttowith = Integer.parseInt(args[1]);
+                }catch (NumberFormatException e){
+                    Message(p,"Try using numbers", false);
+                    return true;
+                }
                 if (oldbal < wanttowith) {
                     p.sendMessage("Not enough xp");
                     return true;
@@ -223,10 +228,16 @@ public class XBank extends JavaPlugin {
                     Message(p, "derp?", false);
                     return true;
                 }
-                String arg1 = args[1];
                 int currxp = p.getLevel();
                 int currbal = getBal(p);
-                int wanttodep = Integer.parseInt(arg1);
+
+                int wanttodep;
+                try{
+                    wanttodep = Integer.parseInt(args[1]);
+                }catch (NumberFormatException e){
+                    Message(p,"Try using numbers", false);
+                    return true;
+                }
                 if (config.getInt("xp.config.minimumdeposit") > wanttodep) {
                     Message(p, "You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"), false);
                     return true;
