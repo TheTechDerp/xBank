@@ -12,9 +12,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.logging.Logger;
 
-import static me.tehrainbowguy.XBank.MySql.*;
+import static me.tehrainbowguy.XBank.MySql.getTop;
 import static me.tehrainbowguy.XBank.Util.Message;
 import static me.tehrainbowguy.XBank.Util.checkString;
 
@@ -24,7 +25,7 @@ public class XBank extends JavaPlugin {
 
     public void onDisable() {
         try {
-            closeConn();
+            MySql.closeConn();
         } catch (SQLException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -82,14 +83,14 @@ public class XBank extends JavaPlugin {
         setupEconomy();
         setupConfig();
             try {
-                initDB();
-                createTables();
+                MySql.initDB();
+                MySql.createTables();
             } catch (SQLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             if (config.contains("xp.user")) {
-                convertYML(config);
+                MySql.convertYML(config);
             }
         log.info(this + " is now enabled!");
     }
@@ -132,7 +133,7 @@ public class XBank extends JavaPlugin {
     }
     private void resetBal(OfflinePlayer target){
             try {
-                setBalanceOffline(target, 0);
+                MySql.setBalanceOffline(target, 0);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -152,7 +153,7 @@ public class XBank extends JavaPlugin {
                 return true;
             }
                 try {
-                    createUser(p);
+                    MySql.createUser(p);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -162,12 +163,15 @@ public class XBank extends JavaPlugin {
                    setupEconomy();
                    setupConfig();
                    try {
-                       closeConn();
-                       initDB();
+                       MySql.closeConn();
+                       MySql.initDB();
                    } catch (SQLException e) {
                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                    }
+                   Message(p,"Reloaded", true);
+                   log.info("[XBank]:  Reloaded....");
                }
+                return true;
             }
             if (args[0].equalsIgnoreCase("reset")) {
                     if (args.length != 2 || !hasPerm(p, "xbank.reset")) {
@@ -190,11 +194,15 @@ public class XBank extends JavaPlugin {
                 int currxp = p.getLevel();
                 int oldbal = getBal(p);
                 int wanttowith;
-                try{
-                 wanttowith = Integer.parseInt(args[1]);
-                }catch (NumberFormatException e){
-                    Message(p,"Try using numbers", false);
-                    return true;
+                if(args[1].equalsIgnoreCase("all")){
+                    wanttowith = oldbal;
+                } else {
+                    try{
+                        wanttowith = Integer.parseInt(args[1]);
+                    }catch (NumberFormatException e){
+                        Message(p,"Try using numbers", false);
+                        return true;
+                    }
                 }
                 if (oldbal < wanttowith) {
                     p.sendMessage("Not enough xp");
@@ -222,6 +230,29 @@ public class XBank extends JavaPlugin {
                 return true;
             }
 
+            if (args[0].equalsIgnoreCase("top")) {
+                if (args.length != 1) {
+                    Message(p, "derp?", false);
+                    return true;
+                }
+                Message(p, "Top ten", true);
+                try {
+                    int i = 0;
+                   // for (Map.Entry<String, Integer> e : MySql.getTop(10).entrySet()) {
+                    for (Map.Entry<String, Integer> e : getTop(10)) {
+                        i++;
+                        Message(p, "#"+ i + ": " + e.getKey()+ " "+e.getValue(), true);
+
+                    }
+                    ;
+                    //}
+                    ;
+                } catch (SQLException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+                //	p.sendMessage("XP: " + p.getLevel());
+                return true;
+            }
 
             if (args[0].equalsIgnoreCase("deposit")) {
                 if (args.length != 2 || checkString(args[1])) {
@@ -232,12 +263,17 @@ public class XBank extends JavaPlugin {
                 int currbal = getBal(p);
 
                 int wanttodep;
-                try{
-                    wanttodep = Integer.parseInt(args[1]);
-                }catch (NumberFormatException e){
-                    Message(p,"Try using numbers", false);
-                    return true;
-                }
+                    if(args[1].equalsIgnoreCase("all")){
+                      wanttodep = currxp;
+                    } else {
+                        try{
+                            wanttodep = Integer.parseInt(args[1]);
+                        }catch (NumberFormatException e){
+                            Message(p,"Try using numbers", false);
+                            return true;
+                        }
+                    }
+
                 if (config.getInt("xp.config.minimumdeposit") > wanttodep) {
                     Message(p, "You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"), false);
                     return true;
@@ -273,11 +309,23 @@ public class XBank extends JavaPlugin {
                     Message(p, "derp?", false);
                     return true;
                 }
-                String arg1 = args[1];
+                if(economy == null){
+                   Message(p,"Needs econ", false );
+                    return true;
+                }
                 int currxp = p.getLevel();
-                int wanttodep = Integer.parseInt(arg1);
-                if (config.getInt("xp.config.minimumdeposit") > wanttodep) {
-                    Message(p, "You need to deposit more! The minimum is " + config.getInt("xp.config.minimumdeposit"), false);
+                int wanttodep = 0;
+                if(args[1].equalsIgnoreCase("all")){
+                    wanttodep = currxp;
+                } else {
+                    try{
+                        wanttodep = Integer.parseInt(args[1]);
+                    }catch (NumberFormatException e){
+                        Message(p,"Try using numbers", false);
+                        return true;
+                    }
+                }                if (config.getInt("xp.config.minimumdeposit") > wanttodep) {
+                    Message(p, "You need to specify more! The minimum is " + config.getInt("xp.config.minimumdeposit"), false);
                     return true;
                 }
 
@@ -309,8 +357,17 @@ public class XBank extends JavaPlugin {
 
                     int currxp = p.getLevel();
                     int targetxp = target.getLevel();
-                    int wanttodep = Integer.parseInt(args[2]);
-                    if (currxp >= wanttodep) {
+                    int wanttodep = 0;
+                    if(args[2].equalsIgnoreCase("all")){
+                        wanttodep = currxp;
+                    } else {
+                        try{
+                            wanttodep = Integer.parseInt(args[2]);
+                        }catch (NumberFormatException e){
+                            Message(p,"Try using numbers", false);
+                            return true;
+                        }
+                    }                    if (currxp >= wanttodep) {
                         p.setLevel(currxp - wanttodep);
                         target.setLevel(targetxp + wanttodep);
                         Message(target, p.getDisplayName() + " sent you " + wanttodep + " levels.", true);

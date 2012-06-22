@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 
 
@@ -102,6 +101,16 @@ public class MySql {
             Statement1.close();
         }
         state.close();
+    }
+    public static DoubleArrayList<String,Integer> getTop(int i) throws SQLException {
+        Statement state = conn.createStatement();
+        final ResultSet rs = state.executeQuery("SELECT * FROM `XBank` ORDER BY `XBank`.`Balance` DESC LIMIT 0 , "+i+";");
+        DoubleArrayList<String,Integer> ret = new DoubleArrayList<String, Integer>(false);
+        while (rs.next()){
+             ret.put(rs.getString("User"),rs.getInt("Balance"));
+        }
+        state.close();
+        return ret;
     }
 
 }
