@@ -13,11 +13,11 @@ public class DoubleArrayList<A, B> implements Iterable<Map.Entry<A, B>> {
     /**
      * First list.
      */
-    private List<A> listA = new ArrayList<A>();
+    private final List<A> listA = new ArrayList<A>();
     /**
      * Second list.
      */
-    private List<B> listB = new ArrayList<B>();
+    private final List<B> listB = new ArrayList<B>();
     /**
      * Is reversed when iterating.
      */
@@ -85,8 +85,8 @@ public class DoubleArrayList<A, B> implements Iterable<Map.Entry<A, B>> {
     public class ForwardEntryIterator<T extends Map.Entry<A, B>>
             implements Iterator<Map.Entry<A, B>> {
 
-        private Iterator<A> keyIterator;
-        private Iterator<B> valueIterator;
+        private final Iterator<A> keyIterator;
+        private final Iterator<B> valueIterator;
 
         public ForwardEntryIterator(Iterator<A> keyIterator, Iterator<B> valueIterator) {
             this.keyIterator = keyIterator;
@@ -114,8 +114,8 @@ public class DoubleArrayList<A, B> implements Iterable<Map.Entry<A, B>> {
     public class ReverseEntryIterator<T extends Map.Entry<A, B>>
             implements Iterator<Map.Entry<A, B>> {
 
-        private ListIterator<A> keyIterator;
-        private ListIterator<B> valueIterator;
+        private final ListIterator<A> keyIterator;
+        private final ListIterator<B> valueIterator;
 
         public ReverseEntryIterator(ListIterator<A> keyIterator, ListIterator<B> valueIterator) {
             this.keyIterator = keyIterator;
@@ -142,8 +142,8 @@ public class DoubleArrayList<A, B> implements Iterable<Map.Entry<A, B>> {
      * @param <D>
      */
     public class Entry<C, D> implements Map.Entry<A, B> {
-        private A key;
-        private B value;
+        private final A key;
+        private final B value;
 
         private Entry(A key, B value) {
             this.key = key;

@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.Set;
 
 
-public class MySql {
+class MySql {
 
-    static FileConfiguration config = XBank.config;
-    static String url = config.getString("xp.config.database");
-    static String user = config.getString("xp.config.user");
-    static String pass = config.getString("xp.config.password");
-    static Connection conn = null;
+    private static final FileConfiguration config = XBank.config;
+    private static final String url = config.getString("xp.config.database");
+    private static final String user = config.getString("xp.config.user");
+    private static final String pass = config.getString("xp.config.password");
+    private static Connection conn = null;
 
     public static void initDB() throws SQLException {
         conn = DriverManager.getConnection(url, user, pass); //Creates the connection
@@ -74,7 +74,7 @@ public class MySql {
         Statement.close(); //Closes the query
     }
 
-    private static ArrayList<Player> seen = new ArrayList<Player>();
+    private static final ArrayList<Player> seen = new ArrayList<Player>();
 
     public static void createUser(Player player) throws SQLException {
         if (seen.contains(player)) {
@@ -95,7 +95,7 @@ public class MySql {
         state.close();
     }
 
-    public static void createUserFromString(String player, int bal) throws SQLException {
+    private static void createUserFromString(String player, int bal) throws SQLException {
         Statement state = conn.createStatement();
         final ResultSet rs = state.executeQuery("SELECT * FROM `XBank` WHERE User='" + player + "';");
 

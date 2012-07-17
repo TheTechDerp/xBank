@@ -20,14 +20,14 @@ import static me.tehrainbowguy.XBank.Util.Message;
 import static me.tehrainbowguy.XBank.Util.checkString;
 
 
-public class XBank extends JavaPlugin {
+class XBank extends JavaPlugin {
 
 
     public void onDisable() {
         try {
             MySql.closeConn();
         } catch (SQLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
         log.info(this + " is now disabled!");
     }
@@ -70,17 +70,16 @@ public class XBank extends JavaPlugin {
 
     }
 
-    public static Permission permission = null;
+    private static Permission permission = null;
 
-    private Boolean setupPermissions() {
+    private void setupPermissions() {
         RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
         if (permissionProvider != null) {
             permission = permissionProvider.getProvider();
         }
-        return (permission != null);
     }
 
-    public Logger log;
+    private Logger log;
 
     public void onEnable() {
         log = getServer().getLogger();
@@ -100,7 +99,7 @@ public class XBank extends JavaPlugin {
         log.info(this + " is now enabled!");
     }
 
-    public boolean hasPerm(Player player, String perm) {
+    boolean hasPerm(Player player, String perm) {
         if (permission == null) {
             return player.isOp();
         } else {
@@ -108,15 +107,13 @@ public class XBank extends JavaPlugin {
         }
     }
 
-    public static Economy economy = null;
+    private static Economy economy = null;
 
-    private boolean setupEconomy() {
+    private void setupEconomy() {
         RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
         if (economyProvider != null) {
             economy = economyProvider.getProvider();
         }
-
-        return (economy != null);
     }
 
     private int getBal(Player p) {
@@ -173,7 +170,7 @@ public class XBank extends JavaPlugin {
                         MySql.closeConn();
                         MySql.initDB();
                     } catch (SQLException e) {
-                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        e.printStackTrace();
                     }
                     Message(p, "Reloaded", true);
                     log.info("[XBank]:  Reloaded....");
@@ -251,11 +248,11 @@ public class XBank extends JavaPlugin {
                         Message(p, "#" + i + ": " + e.getKey() + " " + e.getValue(), true);
 
                     }
-                    ;
+
                     //}
-                    ;
+
                 } catch (SQLException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    e.printStackTrace();
                 }
                 //	p.sendMessage("XP: " + p.getLevel());
                 return true;

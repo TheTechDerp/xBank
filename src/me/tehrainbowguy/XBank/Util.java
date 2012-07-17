@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 
-public class Util {
+class Util {
 
     public static void Message(Player p, String message, Boolean success) {
         if (success) {
@@ -37,9 +37,8 @@ public class Util {
 
     public static boolean checkString(String s) {
         Pattern p = Pattern.compile("[^a-z A-Z 0-9]");
-        boolean hasSpecialChar = p.matcher(s).find();
 
-        return hasSpecialChar;
+        return p.matcher(s).find();
 
     }
 }
