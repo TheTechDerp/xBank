@@ -1,10 +1,8 @@
 author: Benjamin James Harrison-Sims
-database: false
-generator: http://dinnerbone.com/minecraft/tools/pluginator/
 main: me.tehrainbowguy.XBank.XBank
 name: XBank
 startup: postworld
-version: '1.6'
+version: '1.7'
 commands:
     xbank:
         description: Description

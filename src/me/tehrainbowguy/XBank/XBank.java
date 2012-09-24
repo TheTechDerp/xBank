@@ -20,9 +20,9 @@ import static me.tehrainbowguy.XBank.Util.Message;
 import static me.tehrainbowguy.XBank.Util.checkString;
 
 
-class XBank extends JavaPlugin {
+public class XBank extends JavaPlugin {
 
-
+    @Override
     public void onDisable() {
         try {
             MySql.closeConn();
@@ -80,7 +80,7 @@ class XBank extends JavaPlugin {
     }
 
     private Logger log;
-
+    @Override
     public void onEnable() {
         log = getServer().getLogger();
         setupPermissions();
