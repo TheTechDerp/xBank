@@ -42,7 +42,7 @@ public class XBank extends JavaPlugin {
             XBank.mkdir();
             saveConfig();
         } catch (Exception e) {
-            log.severe("[XBank] There was a big ass error, you should poke rainbow!");
+            log.severe("[XBank] There was a error, you should poke rainbow!");
             e.printStackTrace();
         }
         if (!config.contains("xp.config.buyingprice")) {
@@ -92,9 +92,6 @@ public class XBank extends JavaPlugin {
         } catch (SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-        if (config.contains("xp.user")) {
-            MySql.convertYML(config);
         }
         log.info(this + " is now enabled!");
     }

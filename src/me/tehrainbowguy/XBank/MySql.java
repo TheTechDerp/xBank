@@ -26,27 +26,8 @@ class MySql {
         conn.close();
     }
 
-    public static void convertYML(FileConfiguration config) {
-
-        ConfigurationSection groupSection = config.getConfigurationSection("xp.user"); //saves the section we are in for re-use
-        Set<String> list = groupSection.getKeys(false); //grabs all keys in the section
-
-
-        for (String key : list) { //iterate over all keys
-            //map.put(key, groupSection.getInt(key))
-            try {
-                createUserFromString(key, groupSection.getInt(key));
-                System.out.println("Converting user " + key);
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        System.out.println("Finished converting config... You may now clear the config of users.");
-    }
-
     public static void createTables() throws SQLException {
-        PreparedStatement Statement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `XBank` (  `id` int(11) NOT NULL auto_increment,  `User` varchar(50) NOT NULL,  `Balance` int(11) NOT NULL,  PRIMARY KEY  (`id`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;");
+        PreparedStatement Statement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `XBank` (  `id` int(11) NOT NULL auto_increment,  `User` varchar(50) NOT NULL,  `Balance` int(11) NOT NULL,  PRIMARY KEY  (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;");
         Statement.executeUpdate(); //Executes the query
         Statement.close(); //Closes the query
     }
