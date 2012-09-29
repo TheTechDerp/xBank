@@ -305,43 +305,6 @@ public class XBank extends JavaPlugin {
                 }
             }
 
-            if (args[0].equalsIgnoreCase("sell")) {
-                if (args.length != 2 || checkString(args[1])) {
-                    Message(p, "derp?", false);
-                    return true;
-                }
-                if (economy == null) {
-                    Message(p, "Needs econ", false);
-                    return true;
-                }
-                int currxp = p.getLevel();
-                int wanttodep = 0;
-                if (args[1].equalsIgnoreCase("all")) {
-                    wanttodep = currxp;
-                } else {
-                    try {
-                        wanttodep = Integer.parseInt(args[1]);
-                    } catch (NumberFormatException e) {
-                        Message(p, "Try using numbers", false);
-                        return true;
-                    }
-                }
-                if (config.getInt("xp.config.minimumdeposit") > wanttodep) {
-                    Message(p, "You need to specify more! The minimum is " + config.getInt("xp.config.minimumdeposit"), false);
-                    return true;
-                }
-
-                if (currxp >= wanttodep) {
-                    p.setLevel(currxp - wanttodep);
-                    double amtpayed = wanttodep * config.getDouble("xp.config.buyingprice");
-                    economy.depositPlayer(p.getName(), amtpayed);
-                    Message(p, "Deposited " + amtpayed, true);
-                } else {
-                    Message(p, "Not enough xp", false);
-                    return true;
-                }
-                return true;
-            }
 
             if (args[0].equalsIgnoreCase("send")) {
                 if (args.length != 3 || checkString(args[2])) {
